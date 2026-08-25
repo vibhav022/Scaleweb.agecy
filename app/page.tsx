@@ -35,6 +35,7 @@ const projects = [
     showcaseMobile: "/showcase/civic-mobile.webp",
     live: "https://civic-pulse-ai-zeta.vercel.app/",
     tone: "civic",
+    mark: "CP",
   },
   {
     slug: "hydraa-drop",
@@ -53,6 +54,7 @@ const projects = [
     showcaseMobile: "/showcase/hydraa-mobile.webp",
     live: "https://hydradrop-in.vercel.app/",
     tone: "hydraa",
+    mark: "HD",
   },
   {
     slug: "vcap-physiotherapy",
@@ -71,6 +73,7 @@ const projects = [
     showcaseMobile: "/showcase/vcap-mobile.webp",
     live: "https://vcap-physiotherapy.vercel.app/",
     tone: "vcap",
+    mark: "VC",
   },
 ];
 
@@ -590,38 +593,42 @@ export default function Home() {
             <div><h2 id="work-title">Real websites.<br /><em>Built for real businesses.</em></h2><p>A selection of strategy, design and development work created to improve credibility, usability and growth.</p></div>
           </div>
           <div className="work-slider shell" data-reveal onPointerEnter={() => { sliderPausedRef.current = true; }} onPointerLeave={() => { sliderPausedRef.current = false; }} onFocusCapture={() => { sliderPausedRef.current = true; }} onBlurCapture={() => { sliderPausedRef.current = false; }}>
+            <div className="work-slider-topbar">
+              <p><span aria-hidden="true" /> Drag, swipe or use the controls</p>
+              <div className="work-slider-controls" aria-label="Project slider controls">
+                <button className="work-slider-arrow is-previous" type="button" onClick={() => showProject(activeProject - 1)} aria-label="Show previous project" data-cursor="arrow"><span aria-hidden="true">←</span></button>
+                <button className="work-slider-arrow is-next" type="button" onClick={() => showProject(activeProject + 1)} aria-label="Show next project" data-cursor="arrow"><span aria-hidden="true">→</span></button>
+              </div>
+            </div>
             <div className="work-slider-viewport" ref={workSliderRef} onScroll={syncProjectFromScroll} tabIndex={0} role="region" aria-roledescription="carousel" aria-label="Selected website projects" onKeyDown={(event) => { if (event.key === "ArrowLeft" || event.key === "ArrowRight") event.preventDefault(); if (event.key === "ArrowLeft") showProject(activeProject - 1); if (event.key === "ArrowRight") showProject(activeProject + 1); }}>
               <div className="work-slider-track">
                 {projects.map((project, index) => (
                   <article className={`work-card work-card-${project.tone} ${activeProject === index ? "is-active" : ""}`} key={project.slug} aria-roledescription="slide" aria-label={`${index + 1} of ${projects.length}: ${project.name}`}>
-                    <a className="work-card-media" href={`/work/${project.slug}`} aria-label={`View ${project.name} case study`} data-cursor="arrow" data-cursor-tone="light">
+                    <div className="work-card-media">
                       <picture>
                         <source media="(max-width: 760px)" srcSet={project.showcaseMobile} />
                         <img src={project.showcaseDesktop} alt={`${project.name} website showcase`} loading={index === 0 ? "eager" : "lazy"} />
                       </picture>
-                      <span className="work-card-number">{project.number}</span>
-                      <span className="work-card-view">View project ↗</span>
-                    </a>
-                    <div className="work-card-copy">
-                      <div><p>{project.category}</p><h3>{project.name}</h3></div>
-                      <p>{project.description}</p>
+                      <span className="work-card-mark" aria-hidden="true">{project.mark}</span>
+                      <span className="work-card-number">{project.number} / 0{projects.length}</span>
+                      <div className="work-card-copy">
+                        <p>{project.category}</p>
+                        <h3>{project.name}</h3>
+                        <p className="work-card-description">{project.description}</p>
+                        <div className="work-card-links">
+                          <a className="work-card-launch" href={`/work/${project.slug}`} aria-label={`View ${project.name} case study`} data-cursor="arrow" data-cursor-tone="light"><span aria-hidden="true">↗</span></a>
+                          <a className="work-card-live" href={project.live} target="_blank" rel="noreferrer" aria-label={`View ${project.name} live website (opens in a new tab)`} data-cursor="arrow">Live website <span aria-hidden="true">↗</span></a>
+                        </div>
+                      </div>
                     </div>
-                    <div className="work-card-links"><a href={`/work/${project.slug}`} data-cursor="arrow">Case Study ↗</a><a href={project.live} target="_blank" rel="noreferrer" aria-label={`View ${project.name} live website (opens in a new tab)`} data-cursor="arrow">Live Website ↗</a></div>
                   </article>
                 ))}
               </div>
             </div>
-            <div className="work-slider-controls" aria-label="Project slider controls">
-              <button className="work-slider-arrow is-previous" type="button" onClick={() => showProject(activeProject - 1)} aria-label="Show previous project" data-cursor="arrow"><span aria-hidden="true">←</span></button>
-              <div className="work-slider-progress">
-                <span>0{activeProject + 1}</span>
-                <div className="work-slider-rail" style={{ "--slider-position": activeProject } as CSSProperties}>
-                  <i className="work-slider-thumb" aria-hidden="true" />
-                  {projects.map((project, index) => <button type="button" key={project.slug} className={activeProject === index ? "is-active" : ""} onClick={() => showProject(index)} aria-label={`Show ${project.name}`} aria-current={activeProject === index ? "true" : undefined} />)}
-                </div>
-                <span>0{projects.length}</span>
-              </div>
-              <button className="work-slider-next" type="button" onClick={() => showProject(activeProject + 1)} data-magnetic data-cursor="arrow"><span>Next project</span><i aria-hidden="true">→</i></button>
+            <div className="work-slider-progress" aria-label={`Showing project ${activeProject + 1} of ${projects.length}`}>
+              <span>0{activeProject + 1}</span>
+              <div className="work-slider-meter" aria-hidden="true"><i style={{ "--slider-progress": `${(activeProject / Math.max(1, projects.length - 1)) * 100}%` } as CSSProperties} /></div>
+              <span>0{projects.length}</span>
             </div>
           </div>
         </section>
