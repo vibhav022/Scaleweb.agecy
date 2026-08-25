@@ -592,7 +592,9 @@ export default function Home() {
             <p className="section-label">01 — Selected Work</p>
             <div><h2 id="work-title">Real websites.<br /><em>Built for real businesses.</em></h2><p>A selection of strategy, design and development work created to improve credibility, usability and growth.</p></div>
           </div>
-          <div className="work-slider shell" data-reveal onPointerEnter={() => { sliderPausedRef.current = true; }} onPointerLeave={() => { sliderPausedRef.current = false; }} onFocusCapture={() => { sliderPausedRef.current = true; }} onBlurCapture={() => { sliderPausedRef.current = false; }}>
+         <div
+  className="work-slider shell"
+  onPointerEnter={() => { sliderPausedRef.current = true; }} onPointerLeave={() => { sliderPausedRef.current = false; }} onFocusCapture={() => { sliderPausedRef.current = true; }} onBlurCapture={() => { sliderPausedRef.current = false; }}>
             <div className="work-slider-topbar">
               <p><span aria-hidden="true" /> Drag, swipe or use the controls</p>
               <div className="work-slider-controls" aria-label="Project slider controls">
