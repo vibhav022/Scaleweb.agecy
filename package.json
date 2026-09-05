@@ -6,16 +6,15 @@
     "node": ">=22.13.0"
   },
   "scripts": {
-  "install:ci": "bash scripts/install-ci.sh",
-  "dev": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vite",
-  "build": "vite build --config vite.vercel.config.ts",
-  "start": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext start",
-  "test": "npm run build && node --test tests/rendered-html.test.mjs",
-  "validate:artifact": "bash scripts/validate-artifact.sh",
-  "lint": "bash scripts/sites-env.sh -- eslint . --ignore-pattern dist --ignore-pattern .next",
-  "db:generate": "bash scripts/sites-env.sh -- drizzle-kit generate"
-},
-
+    "install:ci": "bash scripts/install-ci.sh",
+    "dev": "vite",
+    "build": "vite build --config vite.vercel.config.ts",
+    "start": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext start",
+    "test": "npm run build && node --test tests/rendered-html.test.mjs",
+    "validate:artifact": "bash scripts/validate-artifact.sh",
+    "lint": "bash scripts/sites-env.sh -- eslint . --ignore-pattern dist --ignore-pattern .next",
+    "db:generate": "bash scripts/sites-env.sh -- drizzle-kit generate"
+  },
   "dependencies": {
     "drizzle-orm": "0.45.2",
     "lenis": "^1.3.17",
@@ -45,4 +44,3 @@
   "type": "module",
   "displayName": "ScaleWeb Agency"
 }
- 
