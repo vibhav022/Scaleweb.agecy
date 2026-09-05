@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./agency-sections.css";
+import "./mobile.css";
 
 export const metadata: Metadata = {
   title: {
@@ -33,7 +35,8 @@ const organization = {
   telephone: ["+91-78038-51101", "+91-96693-66166"],
   areaServed: ["India", "Worldwide"],
   sameAs: ["https://www.instagram.com/scaleweb_agency/"],
-  knowsAbout: ["Website Strategy", "UI/UX Design", "Custom Web Development", "Mobile Optimization", "AI and SaaS Websites", "Landing Pages"],
+  address: { "@type": "PostalAddress", addressLocality: "Indore", addressRegion: "Madhya Pradesh", addressCountry: "IN" },
+  knowsAbout: ["Website Strategy", "UI/UX Design", "Custom Web Development", "Mobile Optimization"],
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

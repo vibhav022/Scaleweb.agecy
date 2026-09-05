@@ -35,7 +35,7 @@ export default function CaseStudyPage({ study }: { study: CaseStudyData }) {
       <a className="skip-link" href="#case-content">Skip to case study</a>
       <nav className="case-nav shell" aria-label="Case study navigation">
         <Link className="wordmark" href="/" aria-label="ScaleWeb Agency home"><strong>SCALEWEB</strong><span>AGENCY</span></Link>
-        <Link className="case-back" href="/#work">← Selected work</Link>
+        <Link className="case-back" href="/portfolio">← Portfolio</Link>
         <a className="case-live" href={study.liveUrl} target="_blank" rel="noreferrer" aria-label={`Open ${study.name} live website in a new tab`}>Open Live Site ↗</a>
       </nav>
 

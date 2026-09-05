@@ -1,7 +1,9 @@
 "use client";
 
-import Lenis from "lenis";
-import { CSSProperties, FormEvent, useCallback, useEffect, useRef, useState } from "react";
+import { CSSProperties, FormEvent, useEffect, useRef, useState } from "react";
+import { useSceneMotion } from "./use-scene-motion";
+import { Capabilities } from "./components/capabilities";
+import { Industries } from "./components/industries";
 
 const services = [
   ["01", "Website Strategy", "Positioning, page structure, user journeys, conversion planning and content hierarchy."],
@@ -15,66 +17,6 @@ const process = [
   ["02", "Strategize", "Plan the structure, messaging, user journey, features and conversion approach."],
   ["03", "Design & Build", "Create the responsive design, develop the website and refine every interaction."],
   ["04", "Launch & Improve", "Test, optimize, publish and support the website after launch."],
-];
-
-const projects = [
-  {
-    slug: "civic-pulse-ai",
-    number: "01",
-    name: "Civic Pulse AI",
-    category: "AI / Civic Technology",
-    year: "2026",
-    services: "Strategy · Product UX · UI Design · Development",
-    description: "A civic issue-reporting platform that turns citizen complaints into clear, trackable action for citizens and administrators.",
-    outcome: "Clearer information hierarchy, simplified reporting and a more credible product presentation across desktop and mobile.",
-    desktop: "/civic-desktop.webp",
-    desktopFallback: "/civic-desktop.png",
-    mobile: "/civic-mobile.webp",
-    mobileFallback: "/civic-mobile.jpeg",
-    showcaseDesktop: "/showcase/civic-desktop.webp",
-    showcaseMobile: "/showcase/civic-mobile.webp",
-    live: "https://civic-pulse-ai-zeta.vercel.app/",
-    tone: "civic",
-    mark: "CP",
-  },
-  {
-    slug: "hydraa-drop",
-    number: "02",
-    name: "HYDRAA Drop",
-    category: "Premium Packaged Water",
-    year: "2026",
-    services: "Strategy · Brand Direction · Mobile UX · Development",
-    description: "A premium packaged-water website built for bulk supply, retail partners and customized event bottle enquiries.",
-    outcome: "Stronger brand presentation, clearer service paths and faster access to WhatsApp ordering on mobile.",
-    desktop: "/hydraa-hero.webp",
-    desktopFallback: "/hydraa-hero.jpeg",
-    mobile: "/hydraa-gallery.webp",
-    mobileFallback: "/hydraa-gallery.jpeg",
-    showcaseDesktop: "/showcase/hydraa-desktop.webp",
-    showcaseMobile: "/showcase/hydraa-mobile.webp",
-    live: "https://hydradrop-in.vercel.app/",
-    tone: "hydraa",
-    mark: "HD",
-  },
-  {
-    slug: "vcap-physiotherapy",
-    number: "03",
-    name: "VCAP Physiotherapy",
-    category: "Healthcare / Lead Generation",
-    year: "2026",
-    services: "Strategy · Healthcare UX · Responsive Design · Development",
-    description: "A conversion-focused physiotherapy website that builds trust quickly and makes appointment booking simple.",
-    outcome: "Improved mobile usability, clearer treatment information and a more direct enquiry journey from search to session.",
-    desktop: "/vcap-desktop.webp",
-    desktopFallback: "/vcap-desktop.png",
-    mobile: "/vcap-mobile.webp",
-    mobileFallback: "/vcap-mobile.jpeg",
-    showcaseDesktop: "/showcase/vcap-desktop.webp",
-    showcaseMobile: "/showcase/vcap-mobile.webp",
-    live: "https://vcap-physiotherapy.vercel.app/",
-    tone: "vcap",
-    mark: "VC",
-  },
 ];
 
 const contactLinks = {
@@ -125,7 +67,6 @@ export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [headerScrolled, setHeaderScrolled] = useState(false);
   const [headerHidden, setHeaderHidden] = useState(false);
-  const [activeProject, setActiveProject] = useState(0);
   const [projectModalOpen, setProjectModalOpen] = useState(false);
   const [form, setForm] = useState<FormFields>(initialForm);
   const [errors, setErrors] = useState<Partial<Record<keyof FormFields, string>>>({});
@@ -133,71 +74,11 @@ export default function Home() {
   const cursorRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLElement>(null);
   const heroVideoRef = useRef<HTMLVideoElement>(null);
-  const workSliderRef = useRef<HTMLDivElement>(null);
-  const activeProjectRef = useRef(0);
-  const sliderPausedRef = useRef(false);
-  const sliderScrollTimerRef = useRef<number | null>(null);
-  const sliderMotionFrameRef = useRef(0);
+  const [motionAllowed, setMotionAllowed] = useState(true);
   const projectDialogRef = useRef<HTMLDivElement>(null);
   const projectOpenerRef = useRef<HTMLElement | null>(null);
 
-  const showProject = useCallback((index: number, behavior: ScrollBehavior = "smooth") => {
-    const viewport = workSliderRef.current;
-    if (!viewport) return;
-    const cards = Array.from(viewport.querySelectorAll<HTMLElement>(".work-card"));
-    const nextIndex = (index + cards.length) % cards.length;
-    const card = cards[nextIndex];
-    if (!card) return;
-    activeProjectRef.current = nextIndex;
-    setActiveProject(nextIndex);
-    const target = Math.min(card.offsetLeft, viewport.scrollWidth - viewport.clientWidth);
-    cancelAnimationFrame(sliderMotionFrameRef.current);
-    viewport.classList.add("is-programmatic");
-    if (behavior === "auto") {
-      viewport.scrollLeft = target;
-      requestAnimationFrame(() => viewport.classList.remove("is-programmatic"));
-      return;
-    }
-    const start = viewport.scrollLeft;
-    const distance = target - start;
-    const startedAt = performance.now();
-    const move = (now: number) => {
-      const progress = Math.min((now - startedAt) / 760, 1);
-      const eased = 1 - Math.pow(1 - progress, 4);
-      viewport.scrollLeft = start + distance * eased;
-      if (progress < 1) sliderMotionFrameRef.current = requestAnimationFrame(move);
-      else viewport.classList.remove("is-programmatic");
-    };
-    sliderMotionFrameRef.current = requestAnimationFrame(move);
-  }, []);
-
-  const syncProjectFromScroll = useCallback(() => {
-    if (sliderScrollTimerRef.current !== null) window.clearTimeout(sliderScrollTimerRef.current);
-    sliderScrollTimerRef.current = window.setTimeout(() => {
-      const viewport = workSliderRef.current;
-      if (!viewport) return;
-      const cards = Array.from(viewport.querySelectorAll<HTMLElement>(".work-card"));
-      const viewportCenter = viewport.scrollLeft + viewport.clientWidth / 2;
-      let nextIndex = 0;
-      let nearest = Number.POSITIVE_INFINITY;
-      cards.forEach((card, index) => {
-        const distance = Math.abs(card.offsetLeft + card.offsetWidth / 2 - viewportCenter);
-        if (distance < nearest) {
-          nearest = distance;
-          nextIndex = index;
-        }
-      });
-      if (nextIndex !== activeProjectRef.current) {
-        activeProjectRef.current = nextIndex;
-        setActiveProject(nextIndex);
-      }
-    }, 120);
-  }, []);
-
-  useEffect(() => () => {
-    if (sliderScrollTimerRef.current !== null) window.clearTimeout(sliderScrollTimerRef.current);
-    cancelAnimationFrame(sliderMotionFrameRef.current);
-  }, []);
+  useSceneMotion(heroRef);
 
   useEffect(() => {
     let previousY = window.scrollY;
@@ -213,6 +94,7 @@ export default function Home() {
       document.documentElement.style.setProperty("--page-progress", `${Math.min(1, Math.max(0, progress)) * 100}%`);
     };
     const onKey = (event: KeyboardEvent) => event.key === "Escape" && setMenuOpen(false);
+    document.documentElement.classList.add("motion-enhanced");
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
@@ -220,26 +102,14 @@ export default function Home() {
           observer.unobserve(entry.target);
         }
       });
-    }, { threshold: 0.12, rootMargin: "0px 0px -8%" });
+    }, { threshold: 0, rootMargin: "0px 0px 40px" });
     const items = Array.from(document.querySelectorAll("[data-reveal]"));
     items.forEach((item) => observer.observe(item));
-    const serviceObserver = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("is-active");
-          serviceObserver.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.4, rootMargin: "-8% 0px -18%" });
-    const serviceCards = Array.from(document.querySelectorAll("[data-service-card]"));
-    serviceCards.forEach((item) => serviceObserver.observe(item));
-    document.documentElement.classList.add("motion-enhanced");
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("keydown", onKey);
     onScroll();
     return () => {
       observer.disconnect();
-      serviceObserver.disconnect();
       document.documentElement.classList.remove("motion-enhanced");
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("keydown", onKey);
@@ -247,83 +117,40 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reducedMotion) return;
-    const interval = window.setInterval(() => {
-      if (!sliderPausedRef.current) showProject(activeProjectRef.current + 1);
-    }, 5200);
-    return () => {
-      window.clearInterval(interval);
-    };
-  }, [showProject]);
-
-  useEffect(() => {
-    const video = heroVideoRef.current;
-    if (!video) return;
-    const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const syncPlayback = () => {
-      if (motionPreference.matches) video.pause();
-      else void video.play().catch(() => undefined);
-    };
-    syncPlayback();
-    motionPreference.addEventListener("change", syncPlayback);
-    return () => motionPreference.removeEventListener("change", syncPlayback);
+    const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const sync = () => setMotionAllowed(!preference.matches);
+    sync();
+    preference.addEventListener("change", sync);
+    return () => preference.removeEventListener("change", sync);
   }, []);
 
   useEffect(() => {
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reducedMotion) return;
-
-    const lenis = new Lenis({ duration: 1.15, smoothWheel: true, wheelMultiplier: 0.9, anchors: true });
-    let frame = 0;
-    const hero = document.querySelector<HTMLElement>(".hero");
-    const heroGrid = hero?.querySelector<HTMLElement>(".hero-grid");
-    const processSection = document.querySelector<HTMLElement>(".process-section");
-    const processItems = Array.from(document.querySelectorAll<HTMLElement>(".process-list li"));
-    const contactSection = document.querySelector<HTMLElement>(".contact-section");
-    const clamp = (value: number) => Math.max(0, Math.min(1, value));
-    const animate = (time: number) => {
-      lenis.raf(time);
-      if (hero && heroGrid) {
-        const heroProgress = clamp(window.scrollY / Math.max(1, hero.offsetHeight * .82));
-        hero.style.setProperty("--hero-scroll-y", `${heroProgress * 96}px`);
-        hero.style.setProperty("--hero-scroll-rotate", `${heroProgress * 3.5}deg`);
-        heroGrid.style.setProperty("--hero-content-y", `${heroProgress * 54}px`);
-        heroGrid.style.setProperty("--hero-content-scale", `${1 - heroProgress * .035}`);
-        heroGrid.style.setProperty("--hero-content-opacity", `${1 - heroProgress * .62}`);
-      }
-      if (processSection) {
-        const rect = processSection.getBoundingClientRect();
-        const processProgress = clamp((window.innerHeight * .72 - rect.top) / Math.max(1, rect.height * .72));
-        processSection.style.setProperty("--process-progress", `${processProgress * 100}%`);
-        if (rect.top < window.innerHeight * .8 && rect.bottom > window.innerHeight * .2) {
-          let activeIndex = 0;
-          let smallestDistance = Number.POSITIVE_INFINITY;
-          processItems.forEach((item, index) => {
-            const itemRect = item.getBoundingClientRect();
-            const distance = Math.abs(itemRect.top + itemRect.height / 2 - window.innerHeight * .5);
-            if (distance < smallestDistance) {
-              smallestDistance = distance;
-              activeIndex = index;
-            }
-          });
-          processItems.forEach((item, index) => item.classList.toggle("is-scroll-active", index === activeIndex));
-        } else {
-          processItems.forEach((item) => item.classList.remove("is-scroll-active"));
-        }
-      }
-      if (contactSection) {
-        const rect = contactSection.getBoundingClientRect();
-        const contactProgress = clamp((window.innerHeight - rect.top) / Math.max(1, window.innerHeight * .75));
-        contactSection.style.setProperty("--contact-shift", `${(1 - contactProgress) * 56}px`);
-        contactSection.style.setProperty("--contact-opacity", `${.35 + contactProgress * .65}`);
-      }
-      frame = requestAnimationFrame(animate);
+    const video = heroVideoRef.current;
+    const hero = heroRef.current;
+    if (!video || !hero) return;
+    const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const mobileQuery = window.matchMedia("(max-width: 760px)");
+    let visible = true;
+    const syncPlayback = () => {
+      if (motionPreference.matches || !visible || document.hidden) video.pause();
+      else void video.play().catch(() => undefined);
     };
-    frame = requestAnimationFrame(animate);
+    const changeSource = () => { video.load(); syncPlayback(); };
+    const observer = new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      syncPlayback();
+    });
+    observer.observe(hero);
+    syncPlayback();
+    motionPreference.addEventListener("change", syncPlayback);
+    mobileQuery.addEventListener("change", changeSource);
+    document.addEventListener("visibilitychange", syncPlayback);
     return () => {
-      cancelAnimationFrame(frame);
-      lenis.destroy();
+      video.pause();
+      observer.disconnect();
+      motionPreference.removeEventListener("change", syncPlayback);
+      mobileQuery.removeEventListener("change", changeSource);
+      document.removeEventListener("visibilitychange", syncPlayback);
     };
   }, []);
 
@@ -342,15 +169,25 @@ export default function Home() {
     let lastY = -100;
     let cursorFrame = 0;
     const onPointerMove = (event: PointerEvent) => {
+      if (event.pointerType !== "mouse") return;
       targetX = event.clientX;
       targetY = event.clientY;
+      if (!cursor.classList.contains("is-visible")) { currentX = targetX; currentY = targetY; }
+      document.documentElement.classList.add("cursor-enhanced");
       cursor.classList.add("is-visible");
       const target = (event.target as HTMLElement).closest<HTMLElement>("[data-cursor]");
       cursor.classList.toggle("is-arrow", target?.dataset.cursor === "arrow");
       cursor.classList.toggle("is-light", target?.dataset.cursorTone === "light");
+      if (!cursorFrame) cursorFrame = requestAnimationFrame(animateCursor);
     };
-    const onPointerLeave = () => cursor.classList.remove("is-visible");
+    const onPointerLeave = () => {
+      cursor.classList.remove("is-visible");
+      document.documentElement.classList.remove("cursor-enhanced");
+      cancelAnimationFrame(cursorFrame);
+      cursorFrame = 0;
+    };
     const animateCursor = () => {
+      cursorFrame = 0;
       currentX += (targetX - currentX) * 0.16;
       currentY += (targetY - currentY) * 0.16;
       const velocityX = currentX - lastX;
@@ -361,9 +198,8 @@ export default function Home() {
       cursor.style.transform = `translate3d(${currentX}px, ${currentY}px, 0) translate(-50%, -50%) rotate(${angle}deg) scale(${stretch}, ${2 - stretch})`;
       lastX = currentX;
       lastY = currentY;
-      cursorFrame = requestAnimationFrame(animateCursor);
+      if (Math.abs(targetX - currentX) > .1 || Math.abs(targetY - currentY) > .1) cursorFrame = requestAnimationFrame(animateCursor);
     };
-    cursorFrame = requestAnimationFrame(animateCursor);
 
     const magneticItems = Array.from(document.querySelectorAll<HTMLElement>("[data-magnetic]"));
     const magneticCleanups = magneticItems.map((item) => {
@@ -384,67 +220,30 @@ export default function Home() {
       };
     });
 
-    const workCards = Array.from(document.querySelectorAll<HTMLElement>(".work-card"));
-    const cardCleanups = workCards.map((card) => {
-      const video = card.querySelector("video");
-      const play = () => video?.play().catch(() => undefined);
-      const pause = () => {
-        if (!video) return;
-        video.pause();
-        video.currentTime = 0;
+    const serviceCards = Array.from(document.querySelectorAll<HTMLElement>(".service-card"));
+    const serviceCleanups = serviceCards.map((card) => {
+      const move = (event: PointerEvent) => {
+        const rect = card.getBoundingClientRect();
+        card.style.setProperty("--spot-x", `${event.clientX - rect.left}px`);
+        card.style.setProperty("--spot-y", `${event.clientY - rect.top}px`);
       };
-      card.addEventListener("pointerenter", play);
-      card.addEventListener("pointerleave", pause);
-      card.addEventListener("focusin", play);
-      card.addEventListener("focusout", pause);
-      return () => {
-        card.removeEventListener("pointerenter", play);
-        card.removeEventListener("pointerleave", pause);
-        card.removeEventListener("focusin", play);
-        card.removeEventListener("focusout", pause);
-      };
+      card.addEventListener("pointermove", move);
+      return () => card.removeEventListener("pointermove", move);
     });
 
     document.addEventListener("pointermove", onPointerMove, { passive: true });
     document.addEventListener("pointerleave", onPointerLeave);
+    document.addEventListener("visibilitychange", onPointerLeave);
     return () => {
       cancelAnimationFrame(cursorFrame);
+      document.documentElement.classList.remove("cursor-enhanced");
       document.removeEventListener("pointermove", onPointerMove);
       document.removeEventListener("pointerleave", onPointerLeave);
+      document.removeEventListener("visibilitychange", onPointerLeave);
       magneticCleanups.forEach((cleanup) => cleanup());
-      cardCleanups.forEach((cleanup) => cleanup());
+      serviceCleanups.forEach((cleanup) => cleanup());
     };
-  }, []);
-
-  useEffect(() => {
-    const hero = heroRef.current;
-    const finePointer = window.matchMedia("(pointer: fine)").matches;
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (!hero || !finePointer || reducedMotion) return;
-
-    const move = (event: PointerEvent) => {
-      const rect = hero.getBoundingClientRect();
-      const x = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
-      const y = Math.max(0, Math.min(1, (event.clientY - rect.top) / rect.height));
-      hero.style.setProperty("--hero-x", `${x * 100}%`);
-      hero.style.setProperty("--hero-y", `${y * 100}%`);
-      hero.style.setProperty("--hero-shift-x", `${(x - .5) * 24}px`);
-      hero.style.setProperty("--hero-shift-y", `${(y - .5) * 18}px`);
-    };
-    const leave = () => {
-      hero.style.setProperty("--hero-x", "76%");
-      hero.style.setProperty("--hero-y", "26%");
-      hero.style.setProperty("--hero-shift-x", "0px");
-      hero.style.setProperty("--hero-shift-y", "0px");
-    };
-
-    hero.addEventListener("pointermove", move, { passive: true });
-    hero.addEventListener("pointerleave", leave);
-    return () => {
-      hero.removeEventListener("pointermove", move);
-      hero.removeEventListener("pointerleave", leave);
-    };
-  }, []);
+  }, [motionAllowed]);
 
   useEffect(() => {
     document.body.classList.toggle("menu-open", menuOpen || projectModalOpen);
@@ -455,9 +254,23 @@ export default function Home() {
     if (!projectModalOpen) return;
     const timer = window.setTimeout(() => projectDialogRef.current?.querySelector<HTMLElement>(".project-modal-close")?.focus(), 80);
     const onModalKey = (event: KeyboardEvent) => {
-      if (event.key !== "Escape") return;
-      setProjectModalOpen(false);
-      window.setTimeout(() => projectOpenerRef.current?.focus(), 50);
+      if (event.key === "Escape") {
+        setProjectModalOpen(false);
+        window.setTimeout(() => projectOpenerRef.current?.focus(), 50);
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const focusable = Array.from(projectDialogRef.current?.querySelectorAll<HTMLElement>("button, a[href], input, select, textarea, [tabindex]:not([tabindex='-1'])") ?? []);
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     };
     window.addEventListener("keydown", onModalKey);
     return () => {
@@ -493,7 +306,7 @@ export default function Home() {
       form.description,
     ].join("\n");
     return {
-      subject: `Website project enquiry — ${form.name}`,
+      subject: `Project enquiry — ${form.name}`,
       body,
     };
   };
@@ -533,11 +346,15 @@ export default function Home() {
         <div className="header-inner shell">
           <a className="wordmark" href="#top" aria-label="ScaleWeb Agency home"><strong>SCALEWEB</strong><span>AGENCY</span></a>
           <nav id="primary-navigation" className={`main-nav ${menuOpen ? "is-open" : ""}`} aria-label="Primary navigation">
-            <a href="#work" onClick={closeMenu}>Work</a>
-            <a href="#services" onClick={closeMenu}>Services</a>
+            <a href="/portfolio" onClick={closeMenu}>Work</a>
+            <a href="#capabilities" onClick={closeMenu}>Services</a>
             <a href="#process" onClick={closeMenu}>Process</a>
             <a href="#about" onClick={closeMenu}>About</a>
             <a href="#contact" onClick={closeMenu}>Contact</a>
+            <div className="mobile-nav-actions">
+              <a href="#contact" onClick={closeMenu}>Start a Project <span aria-hidden="true">↗</span></a>
+              <a href={contactLinks.whatsapp} target="_blank" rel="noreferrer">WhatsApp ScaleWeb <span aria-hidden="true">↗</span></a>
+            </div>
           </nav>
           <a className="header-cta" href="#contact" data-magnetic data-cursor="arrow">Start a Project <span aria-hidden="true">↗</span></a>
           <button className="menu-toggle" type="button" aria-controls="primary-navigation" aria-expanded={menuOpen} onClick={() => setMenuOpen((open) => !open)}><span>{menuOpen ? "Close" : "Menu"}</span><i aria-hidden="true" /></button>
@@ -545,8 +362,9 @@ export default function Home() {
       </header>
 
       <div id="main-content">
+        <div className="hero-stage">
         <section className="hero shell" aria-labelledby="hero-title" ref={heroRef}>
-          <video className="hero-film" ref={heroVideoRef} autoPlay muted loop playsInline preload="auto" aria-hidden="true" tabIndex={-1} disablePictureInPicture>
+          <video className="hero-film" ref={heroVideoRef} muted loop playsInline preload="metadata" aria-hidden="true" tabIndex={-1} disablePictureInPicture>
             <source media="(max-width: 760px)" src="/scaleweb-brand-film-mobile.mp4" type="video/mp4" />
             <source src="/scaleweb-brand-film-desktop.mp4" type="video/mp4" />
           </video>
@@ -558,7 +376,7 @@ export default function Home() {
           <div className="hero-grid" data-reveal>
             <div className="hero-topline">
               <p className="eyebrow"><span /> Strategy · Design · Development</p>
-              <p>India <i /> Worldwide</p>
+              <p>Indore, India <i /> Worldwide</p>
             </div>
             <h1 id="hero-title" aria-label="Websites engineered to make brands impossible to ignore.">
               <span className="hero-line hero-line-one">
@@ -577,67 +395,22 @@ export default function Home() {
               </span>
             </h1>
             <div className="hero-bottom">
-              <p className="hero-intro">Premium, high-performing websites for ambitious businesses ready to grow, lead and be remembered.</p>
+              <p className="hero-intro">Premium, high-performing websites designed to make ambitious businesses easier to trust, remember and choose.</p>
               <div className="hero-actions">
                 <a className="button button-primary" href="#contact" data-magnetic data-cursor="arrow">Start a Project <span aria-hidden="true">↗</span></a>
-                <a className="button button-secondary" href="#work" data-magnetic data-cursor="arrow">Explore Our Work <span aria-hidden="true">↓</span></a>
+                <a className="button button-secondary" href="/portfolio" data-magnetic data-cursor="arrow">Explore Our Work <span aria-hidden="true">↗</span></a>
               </div>
             </div>
           </div>
-          <a className="hero-scroll" href="#work" aria-label="Scroll to selected work"><span>Scroll to explore</span><i aria-hidden="true">↓</i></a>
+          <a className="hero-scroll" href="#capabilities" aria-label="Explore what ScaleWeb does"><span>Scroll to explore</span><i aria-hidden="true">↓</i></a>
         </section>
+        </div>
 
-        <section className="work-section section" id="work" aria-labelledby="work-title">
-          <div className="section-heading shell" data-reveal>
-            <p className="section-label">01 — Selected Work</p>
-            <div><h2 id="work-title">Real websites.<br /><em>Built for real businesses.</em></h2><p>A selection of strategy, design and development work created to improve credibility, usability and growth.</p></div>
-          </div>
-         <div
-  className="work-slider shell"
-  onPointerEnter={() => { sliderPausedRef.current = true; }} onPointerLeave={() => { sliderPausedRef.current = false; }} onFocusCapture={() => { sliderPausedRef.current = true; }} onBlurCapture={() => { sliderPausedRef.current = false; }}>
-            <div className="work-slider-topbar">
-              <p><span aria-hidden="true" /> Drag, swipe or use the controls</p>
-              <div className="work-slider-controls" aria-label="Project slider controls">
-                <button className="work-slider-arrow is-previous" type="button" onClick={() => showProject(activeProject - 1)} aria-label="Show previous project" data-cursor="arrow"><span aria-hidden="true">←</span></button>
-                <button className="work-slider-arrow is-next" type="button" onClick={() => showProject(activeProject + 1)} aria-label="Show next project" data-cursor="arrow"><span aria-hidden="true">→</span></button>
-              </div>
-            </div>
-            <div className="work-slider-viewport" ref={workSliderRef} onScroll={syncProjectFromScroll} tabIndex={0} role="region" aria-roledescription="carousel" aria-label="Selected website projects" onKeyDown={(event) => { if (event.key === "ArrowLeft" || event.key === "ArrowRight") event.preventDefault(); if (event.key === "ArrowLeft") showProject(activeProject - 1); if (event.key === "ArrowRight") showProject(activeProject + 1); }}>
-              <div className="work-slider-track">
-                {projects.map((project, index) => (
-                  <article className={`work-card work-card-${project.tone} ${activeProject === index ? "is-active" : ""}`} key={project.slug} aria-roledescription="slide" aria-label={`${index + 1} of ${projects.length}: ${project.name}`}>
-                    <div className="work-card-media">
-                      <picture>
-                        <source media="(max-width: 760px)" srcSet={project.showcaseMobile} />
-                        <img src={project.showcaseDesktop} alt={`${project.name} website showcase`} loading={index === 0 ? "eager" : "lazy"} />
-                      </picture>
-                      <span className="work-card-mark" aria-hidden="true">{project.mark}</span>
-                      <span className="work-card-number">{project.number} / 0{projects.length}</span>
-                      <div className="work-card-copy">
-                        <p>{project.category}</p>
-                        <h3>{project.name}</h3>
-                        <p className="work-card-description">{project.description}</p>
-                        <div className="work-card-links">
-                          <a className="work-card-launch" href={`/work/${project.slug}`} aria-label={`View ${project.name} case study`} data-cursor="arrow" data-cursor-tone="light"><span aria-hidden="true">↗</span></a>
-                          <a className="work-card-live" href={project.live} target="_blank" rel="noreferrer" aria-label={`View ${project.name} live website (opens in a new tab)`} data-cursor="arrow">Live website <span aria-hidden="true">↗</span></a>
-                        </div>
-                      </div>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </div>
-            <div className="work-slider-progress" aria-label={`Showing project ${activeProject + 1} of ${projects.length}`}>
-              <span>0{activeProject + 1}</span>
-              <div className="work-slider-meter" aria-hidden="true"><i style={{ "--slider-progress": `${(activeProject / Math.max(1, projects.length - 1)) * 100}%` } as CSSProperties} /></div>
-              <span>0{projects.length}</span>
-            </div>
-          </div>
-        </section>
+        <Capabilities onEnquire={(projectType) => { updateField("projectType", projectType); openProjectModal(); }} />
 
         <section className="services-section section light-section section-curve" id="services" aria-labelledby="services-title">
           <div className="section-heading shell" data-reveal><p className="section-label">02 — Expertise</p><div><h2 id="services-title">Everything needed<br />to build a better<br /><em>digital presence.</em></h2><p>Clear, focused services shaped around what your business needs—not a fixed template or bloated package.</p></div></div>
-          <div className="service-stack shell">{services.map(([number, title, copy], index) => <article className={`service-card service-card-${index + 1}`} key={number} data-service-card><div className="service-card-head"><span>{number}</span><h3>{title}</h3><i aria-hidden="true">↗</i></div><div className="service-card-body"><p>{copy}</p><div className="service-art" aria-hidden="true"><i /><i /><i /></div></div></article>)}</div>
+          <div className="service-stack shell">{services.map(([number, title, copy], index) => <article className={`service-card service-card-${index + 1}`} key={number} data-service-card style={{ "--service-index": index } as CSSProperties}><div className="service-card-head"><span>{number}</span><h3>{title}</h3><i aria-hidden="true">↗</i></div><div className="service-card-body"><p>{copy}</p><div className="service-art" aria-hidden="true"><i /><i /><i /></div></div></article>)}</div>
         </section>
 
         <section className="process-section section section-curve section-curve-dark" id="process" aria-labelledby="process-title">
@@ -654,11 +427,13 @@ export default function Home() {
           </div>
         </section>
 
+        <Industries />
+
         <section className="about-section section" id="about" aria-labelledby="about-title">
           <div className="about-grid shell" data-reveal>
             <p className="section-label">About ScaleWeb</p>
             <h2 id="about-title">Built for growth.<br /><em>Designed with intent.</em></h2>
-            <div><p>At ScaleWeb Agency, we design and develop premium, high-performing websites built to help businesses grow. Our services include website strategy, UI/UX design, custom web development, mobile optimization, AI and SaaS websites, landing pages and ongoing performance improvements—from idea to launch.</p><p>We work with businesses, startups and growing brands in India and worldwide, combining strong visual direction with clear business thinking.</p></div>
+            <div><p>ScaleWeb is an Indore-based web agency creating premium, high-performing websites through strategy, UI/UX design, custom development and mobile optimization.</p><p>We work directly with businesses, startups and growing brands across India and worldwide, combining strong visual direction with clear business thinking.</p></div>
           </div>
         </section>
 
@@ -668,14 +443,14 @@ export default function Home() {
             <h2 id="contact-title">Ready to start<br /><em>building?</em></h2>
             <p className="contact-lead">Let’s talk about your project. No pressure—just a clear conversation about what your website could become.</p>
             <div className="contact-launch-ring">
-              <button className="contact-launch" type="button" onClick={openProjectModal} data-magnetic data-cursor="arrow"><span>Talk to ScaleWeb</span><i aria-hidden="true">↗</i></button>
+              <button className="contact-launch" type="button" onClick={openProjectModal} data-magnetic data-cursor="arrow"><span>Start a Project</span><i aria-hidden="true">↗</i></button>
             </div>
             <div className="contact-direct" aria-label="Direct contact options">
               <a href={contactLinks.gmail} target="_blank" rel="noreferrer" data-cursor="arrow"><ContactIcon name="gmail" /><span>scaleweb152@gmail.com</span></a>
               <a href={contactLinks.whatsapp} target="_blank" rel="noreferrer" data-cursor="arrow"><ContactIcon name="whatsapp" /><span>WhatsApp ScaleWeb</span></a>
               <a href="tel:+917803851101" data-cursor="arrow"><span className="contact-phone-icon" aria-hidden="true">↗</span><span>+91 78038 51101</span></a>
             </div>
-            <p className="contact-note">India · Worldwide <i /> Replies within one business day</p>
+            <p className="contact-note">Indore, India · Working worldwide <i /> Replies within one business day</p>
           </div>
         </section>
       </div>
@@ -684,9 +459,9 @@ export default function Home() {
         <div className="footer-card">
           <div className="footer-grid">
             <div className="footer-statement"><a className="footer-mark" href="#top" aria-label="ScaleWeb Agency home">SCALE<span>WEB</span></a><p>We build premium websites that turn first impressions into business growth.</p><div className="footer-socials"><a className="footer-social-link" href={contactLinks.whatsapp} target="_blank" rel="noreferrer" aria-label="Message ScaleWeb on WhatsApp" title="WhatsApp" data-cursor="arrow"><ContactIcon name="whatsapp" /></a><a className="footer-social-link" href={contactLinks.instagram} target="_blank" rel="noreferrer" aria-label="Visit ScaleWeb on Instagram" title="Instagram" data-cursor="arrow"><ContactIcon name="instagram" /></a><a className="footer-social-link" href={contactLinks.gmail} target="_blank" rel="noreferrer" aria-label="Email ScaleWeb with Gmail" title="Gmail" data-cursor="arrow"><ContactIcon name="gmail" /></a></div></div>
-            <nav aria-label="Footer navigation"><span>Quick Links</span><a href="#top">Home</a><a href="#work">Work</a><a href="#services">Expertise</a><a href="#process">Process</a><a href="#about">About</a></nav>
-            <div className="footer-services"><span>Services</span><a href="#services">Website Strategy</a><a href="#services">UI/UX Design</a><a href="#services">Web Development</a><a href="#services">Mobile Optimization</a></div>
-            <div className="footer-contact"><span>Studio &amp; Contact</span><p>ScaleWeb Agency<br /><small>India · Working worldwide</small></p><a href="tel:+917803851101">+91 78038 51101</a><a href="tel:+919669366166">+91 96693 66166</a><a href="mailto:scaleweb152@gmail.com">scaleweb152@gmail.com</a><button type="button" onClick={openProjectModal} data-cursor="arrow">Start a Project <i aria-hidden="true">↗</i></button></div>
+            <nav aria-label="Footer navigation"><span>Quick Links</span><a href="#top">Home</a><a href="/portfolio">Work</a><a href="#services">Expertise</a><a href="#process">Process</a><a href="#about">About</a></nav>
+            <div className="footer-services"><span>Services</span><a href="#capabilities">Website Development</a><a href="#capabilities">App Development</a><a href="#capabilities">AI Media</a><a href="#capabilities">System Development</a></div>
+            <div className="footer-contact"><span>Studio &amp; Contact</span><p>ScaleWeb Agency<br /><small>Indore, India · Working worldwide</small></p><a href="tel:+917803851101">+91 78038 51101</a><a href="tel:+919669366166">+91 96693 66166</a><a href="mailto:scaleweb152@gmail.com">scaleweb152@gmail.com</a><button type="button" onClick={openProjectModal} data-cursor="arrow">Start a Project <i aria-hidden="true">↗</i></button></div>
           </div>
           <div className="footer-bottom"><span>© 2026 ScaleWeb Agency. All rights reserved.</span><span>Built with clarity. Designed for growth.</span><div><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="#top">Back to top ↑</a></div></div>
         </div>
@@ -701,8 +476,8 @@ export default function Home() {
               <div className="field-grid">
                 <label><span>Your name *</span><input name="name" autoComplete="name" placeholder="Full name" value={form.name} onChange={(e) => updateField("name", e.target.value)} aria-invalid={Boolean(errors.name)} aria-describedby={errors.name ? "name-error" : undefined} /><small id="name-error" className="field-error">{errors.name}</small></label>
                 <label><span>Email or WhatsApp *</span><input name="contact" autoComplete="email" placeholder="How should we reach you?" value={form.contact} onChange={(e) => updateField("contact", e.target.value)} aria-invalid={Boolean(errors.contact)} aria-describedby={errors.contact ? "contact-error" : undefined} /><small id="contact-error" className="field-error">{errors.contact}</small></label>
-                <label className="field-wide"><span>What do you need? *</span><select name="projectType" value={form.projectType} onChange={(e) => updateField("projectType", e.target.value)} aria-invalid={Boolean(errors.projectType)} aria-describedby={errors.projectType ? "project-error" : undefined}><option value="">Choose a project type</option><option>New business website</option><option>Website redesign</option><option>Landing page</option><option>AI or SaaS website</option><option>Mobile optimization</option><option>Ongoing website improvements</option></select><small id="project-error" className="field-error">{errors.projectType}</small></label>
-                <label className="field-wide"><span>Tell us a little about it *</span><textarea name="description" rows={3} value={form.description} onChange={(e) => updateField("description", e.target.value)} placeholder="What should the website help your business achieve?" aria-invalid={Boolean(errors.description)} aria-describedby={errors.description ? "description-error" : undefined} /><small id="description-error" className="field-error">{errors.description}</small></label>
+                <label className="field-wide"><span>What do you need? *</span><select name="projectType" value={form.projectType} onChange={(e) => updateField("projectType", e.target.value)} aria-invalid={Boolean(errors.projectType)} aria-describedby={errors.projectType ? "project-error" : undefined}><option value="">Choose a project type</option><option>Website Development</option><option>App Development</option><option>AI Media</option><option>System Development</option><option>Website redesign</option><option>UI/UX design</option></select><small id="project-error" className="field-error">{errors.projectType}</small></label>
+                <label className="field-wide"><span>Tell us a little about it *</span><textarea name="description" rows={3} value={form.description} onChange={(e) => updateField("description", e.target.value)} placeholder="What should this project help your business achieve?" aria-invalid={Boolean(errors.description)} aria-describedby={errors.description ? "description-error" : undefined} /><small id="description-error" className="field-error">{errors.description}</small></label>
               </div>
               <div className="form-action"><div className="form-send"><span>Send your enquiry with</span><div className="form-send-options"><button className="form-send-button" type="submit" data-cursor="arrow"><ContactIcon name="gmail" /><span>Send with Gmail</span><i aria-hidden="true">↗</i></button><button className="form-send-button is-whatsapp" type="button" onClick={submitProjectToWhatsApp} data-cursor="arrow"><ContactIcon name="whatsapp" /><span>Send on WhatsApp</span><i aria-hidden="true">↗</i></button></div></div></div>
               <p className={`form-status ${formStatus !== "idle" ? "is-visible" : ""}`} role="status">{formStatus === "whatsapp" ? "WhatsApp should now be open with your project details prepared. Send the message to complete your enquiry." : "Gmail should now be open with your project details prepared. Send the email to complete your enquiry."}</p>
