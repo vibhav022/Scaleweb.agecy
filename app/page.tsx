@@ -25,6 +25,16 @@ const contactLinks = {
   gmail: "https://mail.google.com/mail/?view=cm&fs=1&to=scaleweb152@gmail.com&su=Website%20project%20enquiry&body=Hi%20ScaleWeb%20Agency%2C%0A%0AI%27d%20like%20to%20discuss%20a%20website%20project.",
 };
 
+const navigationLinks = [
+  ["Home", "#top"],
+  ["Services", "#capabilities"],
+  ["Expertise", "#services"],
+  ["Process", "#process"],
+  ["Portfolio", "/portfolio"],
+  ["About", "#about"],
+  ["Contact", "#contact"],
+];
+
 function ContactIcon({ name }: { name: "whatsapp" | "instagram" | "gmail" }) {
   if (name === "instagram") {
     return <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.4" cy="6.7" r=".8" className="icon-fill" /></svg>;
@@ -342,24 +352,46 @@ export default function Home() {
       <div className="scroll-progress" aria-hidden="true" />
       <div className="motion-cursor" ref={cursorRef} aria-hidden="true"><span>↗</span></div>
 
-      <header className={`site-header ${headerScrolled ? "is-scrolled" : ""} ${headerHidden && !menuOpen ? "is-hidden" : ""}`}>
-        <div className="header-inner shell">
-          <a className="wordmark" href="#top" aria-label="ScaleWeb Agency home"><strong>SCALEWEB</strong><span>AGENCY</span></a>
-          <nav id="primary-navigation" className={`main-nav ${menuOpen ? "is-open" : ""}`} aria-label="Primary navigation">
-            <a href="/portfolio" onClick={closeMenu}>Work</a>
-            <a href="#capabilities" onClick={closeMenu}>Services</a>
-            <a href="#process" onClick={closeMenu}>Process</a>
-            <a href="#about" onClick={closeMenu}>About</a>
-            <a href="#contact" onClick={closeMenu}>Contact</a>
-            <div className="mobile-nav-actions">
-              <a href="#contact" onClick={closeMenu}>Start a Project <span aria-hidden="true">↗</span></a>
-              <a href={contactLinks.whatsapp} target="_blank" rel="noreferrer">WhatsApp ScaleWeb <span aria-hidden="true">↗</span></a>
-            </div>
+      <header className={`site-header nav-pill-drop ${headerScrolled ? "is-scrolled" : ""} ${headerHidden && !menuOpen ? "is-hidden" : ""}`}>
+        <div className="header-inner">
+          <span className="nav-glass-highlight" aria-hidden="true" />
+          <a className="nav-brand" href="#top" aria-label="ScaleWeb Agency home">
+            <img src="/scaleweb-nav-logo.webp" alt="" width={40} height={40} />
+          </a>
+          <p className="nav-mobile-message">Build Smart. Scale Fast.</p>
+          <nav className="nav-desktop-links" aria-label="Primary navigation">
+            {navigationLinks.map(([label, href]) => <a href={href} key={label}>{label}</a>)}
           </nav>
-          <a className="header-cta" href="#contact" data-magnetic data-cursor="arrow">Start a Project <span aria-hidden="true">↗</span></a>
-          <button className="menu-toggle" type="button" aria-controls="primary-navigation" aria-expanded={menuOpen} onClick={() => setMenuOpen((open) => !open)}><span>{menuOpen ? "Close" : "Menu"}</span><i aria-hidden="true" /></button>
+          <div className="nav-pill-actions">
+            <button className="nav-round-action nav-project-action" type="button" aria-label="Start a project" onClick={openProjectModal} data-cursor="arrow">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9" /></svg>
+            </button>
+            <a className="nav-round-action" href="tel:+917803851101" aria-label="Call ScaleWeb Agency">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 16.5v3a2 2 0 0 1-2.2 2 19.5 19.5 0 0 1-8.5-3 19.2 19.2 0 0 1-5.9-5.9 19.5 19.5 0 0 1-3-8.5A2 2 0 0 1 3.4 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.4 2.1L7.4 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.4 1.6Z" /></svg>
+            </a>
+            <button className="nav-round-action nav-menu-button" type="button" aria-label="Open menu" aria-haspopup="dialog" aria-expanded={menuOpen} onClick={() => setMenuOpen(true)}>
+              <span /><span />
+            </button>
+          </div>
         </div>
       </header>
+
+      {menuOpen && <div className="nav-directory" role="dialog" aria-modal="true" aria-label="Navigation menu">
+        <button className="nav-directory-close" type="button" aria-label="Close menu" onClick={closeMenu} autoFocus><span aria-hidden="true">×</span></button>
+        <div className="nav-directory-inner">
+          <nav className="nav-directory-links" aria-label="All pages">
+            {navigationLinks.map(([label, href], index) => <a href={href} key={label} onClick={closeMenu}><span>0{index + 1}</span>{label}</a>)}
+          </nav>
+          <div className="nav-directory-footer">
+            <div className="nav-directory-contact">
+              <a href="mailto:scaleweb152@gmail.com">scaleweb152@gmail.com</a>
+              <a href="tel:+917803851101">+91 78038 51101</a>
+              <a href={contactLinks.instagram} target="_blank" rel="noreferrer">Instagram ↗</a>
+            </div>
+            <button type="button" onClick={() => { closeMenu(); openProjectModal(); }}>Talk to ScaleWeb <span aria-hidden="true">↗</span></button>
+          </div>
+        </div>
+      </div>}
 
       <div id="main-content">
         <div className="hero-stage">
