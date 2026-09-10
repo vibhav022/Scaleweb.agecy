@@ -15,14 +15,15 @@ export type CaseStudyData = {
   mobile: string;
   gallery: { src: string; alt: string; kind?: "desktop" | "mobile" }[];
   liveUrl: string;
+  adminUrl?: string;
   next: { name: string; href: string };
-  accent: "civic" | "hydraa" | "vcap";
+  accent: "civic" | "hydraa" | "vcap" | "afterhours";
 };
 
 export const caseStudies: Record<string, CaseStudyData> = {
   "civic-pulse-ai": {
     slug: "civic-pulse-ai",
-    number: "01 / 03",
+    number: "01 / 04",
     name: "Civic Pulse AI",
     year: "2026",
     category: "AI / CIVIC TECHNOLOGY",
@@ -51,7 +52,7 @@ export const caseStudies: Record<string, CaseStudyData> = {
   },
   "hydraa-drop": {
     slug: "hydraa-drop",
-    number: "02 / 03",
+    number: "02 / 04",
     name: "HYDRAA Drop",
     year: "2026",
     category: "PREMIUM PACKAGED WATER",
@@ -80,7 +81,7 @@ export const caseStudies: Record<string, CaseStudyData> = {
   },
   "vcap-physiotherapy": {
     slug: "vcap-physiotherapy",
-    number: "03 / 03",
+    number: "03 / 04",
     name: "VCAP Physiotherapy",
     year: "2026",
     category: "HEALTHCARE / LEAD GENERATION",
@@ -105,7 +106,39 @@ export const caseStudies: Record<string, CaseStudyData> = {
       { src: "/vcap-booking.jpeg", alt: "VCAP Physiotherapy mobile booking form", kind: "mobile" },
     ],
     liveUrl: "https://vcap-physiotherapy.vercel.app/",
-    next: { name: "Civic Pulse AI", href: "/work/civic-pulse-ai" },
+    next: { name: "AfterHours", href: "/work/afterhours-party" },
     accent: "vcap",
+  },
+  "afterhours-party": {
+    slug: "afterhours-party",
+    number: "04 / 04",
+    name: "AfterHours",
+    year: "2026",
+    category: "EVENTS / FULL-STACK PLATFORM",
+    headline: "The party starts before the doors open.",
+    intro: "A cinematic event website and private organiser dashboard built as one connected experience—from first impression and venue discovery to RSVP capture and protected backstage access.",
+    challenge: "AfterHours needed to feel like the event itself: bold, energetic and impossible to ignore. At the same time, the experience had to communicate the date, venue, ticket details and RSVP flow clearly on every screen, while keeping guest information available only to authorised organisers.",
+    approach: "We paired an editorial black-and-red identity with kinetic typography, countdown-led urgency, interactive event details and a mobile-first RSVP journey. Behind the public experience, we built a private admin route protected by both a password and a six-digit authenticator code for controlled access to the RSVP list.",
+    outcome: "The result is a coherent full-stack event platform: guests can understand the night and register interest without friction, while organisers have a separate, secure backstage entry point for event operations.",
+    scope: ["Experience strategy", "Event UI / UX", "Responsive frontend", "RSVP data flow", "Protected admin dashboard", "Authentication design"],
+    features: [
+      { title: "Event-first storytelling", copy: "Countdown, venue, exclusive details, gallery and collaborators are structured as one energetic journey instead of a conventional event page." },
+      { title: "Mobile RSVP flow", copy: "A concise, touch-friendly form collects guest details and consent while preserving the visual identity on smaller screens." },
+      { title: "Secure backstage access", copy: "The private admin area uses password and authenticator-code verification before exposing the organiser RSVP view." },
+      { title: "One connected system", copy: "The guest-facing website and admin workflow were designed together so the experience remains consistent from submission to management." },
+    ],
+    desktop: "/afterhours/hero-desktop.webp",
+    mobile: "/afterhours/hero-mobile.webp",
+    gallery: [
+      { src: "/afterhours/energy-desktop.webp", alt: "AfterHours exclusive event details and interactive card system", kind: "desktop" },
+      { src: "/afterhours/venue-desktop.webp", alt: "AfterHours venue information and map experience", kind: "desktop" },
+      { src: "/afterhours/footer-desktop.webp", alt: "AfterHours collaborators and event footer", kind: "desktop" },
+      { src: "/afterhours/admin-desktop.webp", alt: "AfterHours protected admin dashboard access on desktop", kind: "desktop" },
+      { src: "/afterhours/admin-mobile.webp", alt: "AfterHours protected admin dashboard access on mobile", kind: "mobile" },
+    ],
+    liveUrl: "https://afterhours-party-376v.vercel.app/",
+    adminUrl: "https://afterhours-party-376v.vercel.app/admin",
+    next: { name: "Civic Pulse AI", href: "/work/civic-pulse-ai" },
+    accent: "afterhours",
   },
 };

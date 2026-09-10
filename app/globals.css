@@ -1,5 +1,7 @@
 @import "tailwindcss/index.css";
 
+ 
+
 :root {
   --black: #070806;
   --black-soft: #10110e;
@@ -308,7 +310,9 @@ h1 em, h2 em { color: var(--gold); font-family: "Iowan Old Style", Baskerville, 
 /* Project case studies */
 .case-study { min-height: 100vh; background: var(--black); color: var(--ivory); }
 .case-nav { min-height: 84px; display: flex; align-items: center; justify-content: space-between; gap: 24px; border-bottom: 1px solid var(--line); }
-.case-back, .case-live { min-height: 44px; display: inline-flex; align-items: center; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }
+.case-nav-links { display: flex; align-items: center; justify-content: flex-end; gap: 12px; }
+.case-back, .case-live, .case-admin { min-height: 44px; display: inline-flex; align-items: center; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }
+.case-admin { padding: 0 16px; border: 1px solid var(--line); color: var(--ivory); }
 .case-live { padding: 0 16px; border: 1px solid rgba(185,151,87,.55); color: var(--gold); }
 .case-study-hero { padding: 85px 0 120px; }
 .case-hero-copy { display: grid; grid-template-columns: .65fr 2.1fr 1fr; gap: 55px; align-items: end; margin-bottom: 75px; }
@@ -321,6 +325,9 @@ h1 em, h2 em { color: var(--gold); font-family: "Iowan Old Style", Baskerville, 
 .case-study-civic .case-hero-stage { background: #0d1a20; }
 .case-study-hydraa .case-hero-stage { background: #031522; }
 .case-study-vcap .case-hero-stage { background: #121c3d; }
+.case-study-afterhours .case-hero-stage { background: radial-gradient(circle at 72% 35%,rgba(209,25,57,.2),transparent 38%),#090405; }
+.case-study-afterhours .cs-browser i:first-child { background: #d61f3f; }
+.case-study-afterhours .case-hero-label small { color: #ee3855; }
 .case-hero-grid { position: absolute; inset: 0; opacity: .2; background-image: linear-gradient(rgba(243,239,230,.08) 1px,transparent 1px), linear-gradient(90deg,rgba(243,239,230,.08) 1px,transparent 1px); background-size: 60px 60px; }
 .cs-browser { position: relative; z-index: 1; width: 78%; overflow: hidden; border: 1px solid rgba(243,239,230,.35); border-radius: 12px; background: #090a08; box-shadow: 0 35px 75px rgba(0,0,0,.5); }
 .cs-browser > div { height: 35px; padding: 0 14px; display: flex; align-items: center; gap: 7px; border-bottom: 1px solid var(--line); color: #777; font-size: 7px; }

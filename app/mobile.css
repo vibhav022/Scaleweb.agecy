@@ -276,8 +276,9 @@
   .portfolio-project-links { gap: 12px 24px; margin-top: 18px; }
   .portfolio-grid { gap: 48px; padding-bottom: 64px; }
   .case-nav { flex-wrap: wrap; gap: 8px; padding-block: 14px; }
+  .case-nav-links { width: 100%; justify-content: flex-start; flex-wrap: wrap; gap: 8px; }
   .case-nav .case-back { display: inline-flex; min-height: 44px; font-size: 12px; }
-  .case-live { min-height: 44px; font-size: 12px; }
+  .case-live, .case-admin { min-height: 44px; font-size: 12px; }
   .case-study-hero { padding-block: 40px 64px; }
   .case-hero-copy h1 { font-size: clamp(2.25rem,10vw,3.75rem); line-height: 1.05; }
   .case-overview, .case-scope, .case-built, .case-gallery-section, .case-next { padding-block: 64px; }

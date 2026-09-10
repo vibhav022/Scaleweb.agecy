@@ -3,7 +3,7 @@ import { projects } from "../data/projects";
 
 export const metadata: Metadata = {
   title: "Our Portfolio",
-  description: "Explore ScaleWeb's website and product work for Civic Pulse AI, HYDRAA Drop and VCAP Physiotherapy.",
+  description: "Explore ScaleWeb's website and product work for Civic Pulse AI, HYDRAA Drop, VCAP Physiotherapy and AfterHours.",
 };
 
 export default function Portfolio() {
